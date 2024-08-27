@@ -1,3 +1,4 @@
 mplsoccer
 fbrefdata
 statsbombpy
+notebook
