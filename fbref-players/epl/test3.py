@@ -330,6 +330,43 @@ def main():
     else:
         stats_list, _, _ = get_stats_lists_gk()
         df_list = read_and_filter_stats_gk(fbref, stats_list)
+        param_mapping = {
+            "Goals Against": ['Performance', 'GA'],
+            "Goals Against per 90": ['Performance', 'GA90'],
+            "Shots on Target Against": ['Performance', 'SoTA'],
+            "Saves": ['Performance', 'Saves'],
+            "Save Percentage": ['Performance', 'Save%'],
+            "Wins": ['Performance', 'W'],
+            "Draws": ['Performance', 'D'],
+            "Losses": ['Performance', 'L'],
+            "Clean Sheets": ['Performance', 'CS'],
+            "Clean Sheet Percentage": ['Performance', 'CS%'],
+            "Penalty Kicks Attempted": ['Penalty Kicks', 'PKatt'],
+            "Penalty Kicks Allowed": ['Penalty Kicks', 'PKA'],
+            "Penalty Kicks Saved": ['Penalty Kicks', 'PKsv'],
+            "Penalty Kicks Missed": ['Penalty Kicks', 'PKm'],
+            "Penalty Save Percentage": ['Penalty Kicks', 'Save%'],
+            "Post-Shot Expected Goals": ['Expected', 'PSxG'],
+            "Post-Shot Expected Goals per Shot on Target": ['Expected', 'PSxG/SoT'],
+            "Post-Shot Expected Goals +/-": ['Expected', 'PSxG+/-'],
+            "Post-Shot Expected Goals per 90": ['Expected', '/90'],
+            "Launched Passes Completed": ['Launched', 'Cmp'],
+            "Launched Passes Attempted": ['Launched', 'Att'],
+            "Launched Pass Completion Percentage": ['Launched', 'Cmp%'],
+            "Passes Attempted (GK)": ['Passes', 'Att (GK)'],
+            "Throws": ['Passes', 'Thr'],
+            "Launch Percentage": ['Passes', 'Launch%'],
+            "Average Pass Length": ['Passes', 'AvgLen'],
+            "Goal Kicks Attempted": ['Goal Kicks', 'Att'],
+            "Goal Kicks Launch Percentage": ['Goal Kicks', 'Launch%'],
+            "Average Goal Kick Length": ['Goal Kicks', 'AvgLen'],
+            "Crosses Faced": ['Crosses', 'Opp'],
+            "Crosses Stopped": ['Crosses', 'Stp'],
+            "Crosses Stopped Percentage": ['Crosses', 'Stp%'],
+            "Sweeper Actions": ['Sweeper', '#OPA'],
+            "Sweeper Actions per 90": ['Sweeper', '#OPA/90'],
+            "Average Sweeper Action Distance": ['Sweeper', 'AvgDist']
+        }
     merged_df = merge_dataframes(df_list)
     # Get list of players
     players = merged_df['player'].unique().tolist()
@@ -340,7 +377,7 @@ def main():
     params = list(param_mapping.keys())
     selected_params = st.multiselect("Select parameters to compare", params, default=params[:5])
     
-    lower_is_better_options = st.multiselect("Select parameters where lower is better", params, default=['Miscontrol', 'Dispossessed'])
+    lower_is_better_options = st.multiselect("Select parameters where lower is better", params)
     
     if st.button("Compare Players"):
         compare_players_and_create_radar(merged_df, player1, player2, selected_params, param_mapping, lower_is_better_options)
