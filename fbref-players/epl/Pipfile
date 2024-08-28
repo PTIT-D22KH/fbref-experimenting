@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+mplsoccer = "==1.4.0"
+fbrefdata = "==0.4.1"
+statsbombpy = "==1.13.1"
+disutils = "==1.4.32.post2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
+python_full_version = "3.12.1"

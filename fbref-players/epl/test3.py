@@ -164,8 +164,16 @@ def main():
     player2 = st.selectbox("Select the second player", players)
     
     param_mapping = {
-        "npxG": ['Expected', 'npxG'],
+        "Goals": ['Performance', 'Gls'],
+        "Assists": ['Performance', 'Ast'],
+        "Goals + Assists": ['Performance', 'G+A'],
         "Non-Penalty Goals": ['Performance', 'G-PK'],
+        "Assists": ['Performance', 'Ast'],
+        "Penalty Goals": ['Performance', 'PK'],
+        'Penalty kick Attempts': ['Performance', 'PKatt'],
+
+        "xG": ['Expected', 'xG'],
+        "npxG": ['Expected', 'npxG'],
         "xAG": ['Expected', 'xAG'],
         "Key Passes": ['KP'],
         "Through Balls": ['Pass Types', 'TB'],
@@ -176,7 +184,7 @@ def main():
         "Touches In Attacking 1/3": ['Touches', 'Att 3rd'],
         "Miscontrol": ['Carries', 'Mis'],
         "Dispossessed": ['Carries', 'Dis'],
-        "xG": ['Expected', 'xG'],
+        
         "Shots": ['Standard', 'Sh'],
         "Progressive Carries": ['Carries', 'PrgC'],
         "Progressive Pass Received": ['Receiving', 'PrgR'],
