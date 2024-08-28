@@ -2,3 +2,4 @@ mplsoccer
 fbrefdata
 statsbombpy
 notebook
+streamlit
