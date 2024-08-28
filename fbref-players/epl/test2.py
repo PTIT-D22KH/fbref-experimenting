@@ -72,7 +72,7 @@ def get_player_values(merged_df, player_name, col):
     
     return player_values
 
-def create_radar_chart(params, low, high, lower_is_better, player1_values, player2_values, player1_name, player2_name):
+def create_radar_chart(params, low, high, lower_is_better, player1_values, player2_values, player1_name, player2_name, team1_name, team2_name):
     """Create radar chart comparing two players."""
     radar = mp.Radar(params, low, high, lower_is_better=lower_is_better, round_int=[False]*len(params), num_rings=4, ring_width=1, center_circle_radius=1)
     
@@ -100,21 +100,26 @@ def create_radar_chart(params, low, high, lower_is_better, player1_values, playe
     
     endnote_text = axs['endnote'].text(0.99, 0.5, 'Inspired By: StatsBomb / Rami Moghadam', fontsize=15, fontproperties=robotto_thin.prop, ha='right', va='center')
     title1_text = axs['title'].text(0.01, 0.65, player1_name, fontsize=25, color='#01c49d', fontproperties=robotto_bold.prop, ha='left', va='center')
-    title2_text = axs['title'].text(0.01, 0.25, 'Manchester United', fontsize=20, fontproperties=robotto_thin.prop, ha='left', va='center', color='#01c49d')
+    title2_text = axs['title'].text(0.01, 0.25, team1_name, fontsize=20, fontproperties=robotto_thin.prop, ha='left', va='center', color='#01c49d')
     title3_text = axs['title'].text(0.99, 0.65, player2_name, fontsize=25, fontproperties=robotto_bold.prop, ha='right', va='center', color='#d80499')
-    title4_text = axs['title'].text(0.99, 0.25, 'Manchester City', fontsize=20, fontproperties=robotto_thin.prop, ha='right', va='center', color='#d80499')
+    title4_text = axs['title'].text(0.99, 0.25, team2_name, fontsize=20, fontproperties=robotto_thin.prop, ha='right', va='center', color='#d80499')
     
     fig.set_facecolor('#f2dad2')
     st.pyplot(fig)
 
-def compare_players_and_create_radar(merged_df, player1, player2, col, params, lower_is_better):
+def compare_players_and_create_radar(merged_df, player1, player2, selected_params, param_mapping, lower_is_better):
     """Compare two players and create a radar chart."""
+    col = [param_mapping[param] for param in selected_params]
     player1_values = get_player_values(merged_df, player1, col)
     player2_values = get_player_values(merged_df, player2, col)
     
+    # Get team names
+    team1_name = merged_df[merged_df['player'] == player1]['team'].values[0]
+    team2_name = merged_df[merged_df['player'] == player2]['team'].values[0]
+    
     # Define lower and upper limits for each parameter
-    predefined_low = [0] * len(params)
-    predefined_high = [1] * len(params)
+    predefined_low = [0] * len(selected_params)
+    predefined_high = [1] * len(selected_params)
     
     low = np.minimum(predefined_low, np.minimum(player1_values, player2_values))
     high = np.maximum(predefined_high, np.maximum(player1_values, player2_values))
@@ -124,61 +129,55 @@ def compare_players_and_create_radar(merged_df, player1, player2, col, params, l
         if low[i] >= high[i]:
             high[i] = low[i] + 1  # Adjust high to be greater than low
     
-    create_radar_chart(params, low, high, lower_is_better, player1_values, player2_values, player1, player2)
+    create_radar_chart(selected_params, low, high, lower_is_better, player1_values, player2_values, player1, player2, team1_name, team2_name)
 
-def plot_attMid(merged_df, player1, player2):
-    params = ["npxG", "Non-Penalty Goals", "xAG", "Key Passes", "Through Balls", "Progressive Passes", "Shot-Creating Actions", "Goal-Creating Actions", "Carries", "Touches In Attacking 1/3", "Miscontrol", 'Dispossessed']
-    col = [['Expected', 'npxG'], ['Performance', 'G-PK'], ['Expected', 'xAG'], ['KP'], ['Pass Types', 'TB'], ['PrgP'], ['SCA', 'SCA'], ['GCA', 'GCA'], ['Carries', 'Carries'], ['Touches', 'Att 3rd'], ['Carries', 'Mis'], ['Carries', 'Dis']]
-    lower_is_better = ['Miscontrol', 'Dispossessed']
-    compare_players_and_create_radar(merged_df, player1, player2, col, params, lower_is_better)
-
-def plot_fw(merged_df, player1, player2):
-    params = ["xG", 'xAG', 'npxG', 'Shots', 'Progressive Carries', 'Progressive Pass Received', 'Key Passes', 'Successful Take-ons', 'Successful Take-on %', 'Shot Creating Actions']
-    col = [
-        ['Expected', 'xG'],   
-        ['Expected', 'xAG'],
-        ['Expected', 'npxG'],
-        ['Standard', 'Sh'],
-        ['Carries', 'PrgC'],
-        ['Receiving', 'PrgR'],
-        ['KP'],
-        ['Take-Ons', 'Succ'],
-        ['Take-Ons', 'Succ%'],
-        ['SCA', 'SCA']   
-    ]
-    lower_is_better = []
-    compare_players_and_create_radar(merged_df, player1, player2, col, params, lower_is_better)
-def plot_mf(merged_df, player1, player2):
-    params = ["xG", 'xAG', 'Shots', 'Progressive Carries', 'Key Passes', 'Successful Take-ons', ]
-    col = [
-        ['Expected', 'xG'],   
-        ['Expected', 'xAG'],
-        ['Standard', 'Sh'],
-        ['Carries', 'PrgC'],
-        ['KP'],
-        ['Take-Ons', 'Succ'], 
-    ]
-    lower_is_better = []
-    compare_players_and_create_radar(merged_df, player1, player2, col, params, lower_is_better)
 def main():
     st.title("Player Comparison Radar Chart")
     
     get_available_leagues()
-    fbref = initialize_fbref('ENG-EPL', '2024-2025')
+    
+    # User selects the season
+    season = st.selectbox("Select the season", ['2024-2025', '2023-2024', '2022-2023'])
+    fbref = initialize_fbref('ENG-EPL', season)
+    
     stats_list, _, _ = get_stats_lists()
     df_list = read_and_filter_stats(fbref, stats_list)
     merged_df = merge_dataframes(df_list)
     
-    player1 = st.text_input("Enter the first player's name", 'James Maddison')
-    player2 = st.text_input("Enter the second player's name", 'Kevin De Bruyne')
+    # Get list of players
+    players = merged_df['player'].unique().tolist()
     
-    position = st.selectbox("Select the position to compare", ["Attacking Midfielder", "Forward"])
+    player1 = st.selectbox("Select the first player", players)
+    player2 = st.selectbox("Select the second player", players)
+    
+    param_mapping = {
+        "npxG": ['Expected', 'npxG'],
+        "Non-Penalty Goals": ['Performance', 'G-PK'],
+        "xAG": ['Expected', 'xAG'],
+        "Key Passes": ['KP'],
+        "Through Balls": ['Pass Types', 'TB'],
+        "Progressive Passes": ['PrgP'],
+        "Shot-Creating Actions": ['SCA', 'SCA'],
+        "Goal-Creating Actions": ['GCA', 'GCA'],
+        "Carries": ['Carries', 'Carries'],
+        "Touches In Attacking 1/3": ['Touches', 'Att 3rd'],
+        "Miscontrol": ['Carries', 'Mis'],
+        "Dispossessed": ['Carries', 'Dis'],
+        "xG": ['Expected', 'xG'],
+        "Shots": ['Standard', 'Sh'],
+        "Progressive Carries": ['Carries', 'PrgC'],
+        "Progressive Pass Received": ['Receiving', 'PrgR'],
+        "Successful Take-ons": ['Take-Ons', 'Succ'],
+        "Successful Take-on %": ['Take-Ons', 'Succ%']
+    }
+    
+    params = list(param_mapping.keys())
+    selected_params = st.multiselect("Select parameters to compare", params, default=params[:5])
+    
+    lower_is_better_options = st.multiselect("Select parameters where lower is better", params, default=['Miscontrol', 'Dispossessed'])
     
     if st.button("Compare Players"):
-        if position == "Attacking Midfielder":
-            plot_attMid(merged_df, player1, player2)
-        elif position == "Forward":
-            plot_fw(merged_df, player1, player2)
+        compare_players_and_create_radar(merged_df, player1, player2, selected_params, param_mapping, lower_is_better_options)
 
 if __name__ == "__main__":
     main()
