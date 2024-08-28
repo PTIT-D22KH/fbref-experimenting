@@ -150,7 +150,7 @@ def main():
     selected_league_key = league_name_to_key[selected_league_name]
     
     # User selects the season
-    season = st.selectbox("Select the season", ['2024-2025', '2023-2024', '2022-2023'])
+    season = st.selectbox("Select the season", ['2024-2025', '2023-2024', '2022-2023', '2021-2022', '2020-2021', '2019-2020', '2018-2019', '2017-2018'])
     fbref = initialize_fbref(selected_league_key, season)
     
     stats_list, _, _ = get_stats_lists()
