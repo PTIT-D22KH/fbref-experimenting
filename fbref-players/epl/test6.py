@@ -659,19 +659,20 @@ def main():
     os.makedirs(config_dir, exist_ok=True)
     source = 'league_dict.json'
     shutil.copy(source, league_dict_path)
-    st.title("Player Comparison Radar Chart")
+    st.title("Comparison Radar Chart")
     # 
     # Load league dictionary
     
     # User selects the type of comparison
-    comparison_choice = st.radio("Choose comparison type", ('Player in Matches', 'Player in Season'))
+    comparison_choice = st.radio("Choose comparison type", ('Player in Season', 'Player in Matches', 'Club in Season', 'Club in Matches'))
 
-    if comparison_choice == 'Player in Matches':
+    if comparison_choice == 'Player in Season':
         # Call the function for comparing players in matches
-        player_match_compare()
-    else:
-        # Call the function for comparing players in season
         player_season_compare()
+    elif comparison_choice == 'Player in Matches':
+        # Call the function for comparing players in season
+        player_match_compare()
+        
 
 
 if __name__ == "__main__":
