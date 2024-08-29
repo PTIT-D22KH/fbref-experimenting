@@ -45,23 +45,54 @@ def read_and_filter_stats(fbref, stats_list):
     
     return df_list
 
-def update_club_and_average(group):
-    # Concatenate club names
-    clubs = ', '.join(group['team'].unique())
-    # Calculate average for float columns
-    avg_values = group.mean(numeric_only=True)
-    # Create a new row with updated club and average values
-    new_row = group.iloc[0].copy()
-    new_row['team'] = clubs
-    for col in avg_values.index:
-        new_row[col] = avg_values[col]
-    return new_row
-
 def filter_duplicate_players(df):
     """Filter out players with 2 or more occurrences."""
     player_counts = df['player'].value_counts()
     players_to_drop = player_counts[player_counts >= 2].index
-    return df[~df['player'].isin(players_to_drop)]
+
+    # Filter the DataFrame to include only players with multiple occurrences
+    df_filtered = df[df['player'].isin(players_to_drop)]
+
+    # Separate the columns that should not be summed, excluding 'player' and 'id'
+    non_sum_columns = df_filtered.select_dtypes(include='object').columns.tolist()
+    if 'age' in df_filtered.columns:
+        non_sum_columns.append('age')
+    if 'born' in df_filtered.columns:
+        non_sum_columns.append('born')
+    non_sum_columns = list(set(non_sum_columns) - {('player', ''), 'id'})  # Remove duplicates and exclude 'player' and 'id'
+
+    # Adjust non_sum_columns to handle tuples
+    res = []
+    for x in non_sum_columns:
+        if type(x) == tuple and len(x) > 1:
+            x = x[0]
+        res.append(x)
+
+    # Group by player and id, and calculate the sum of numeric columns excluding non-sum columns
+    group_sum = df_filtered.drop(columns=res).groupby(['player', 'id']).sum(numeric_only=True)
+
+    # Concatenate the unique team and pos names for each player and index combination
+    try:
+        df_filtered['team'] = df_filtered.groupby(['player', df_filtered.index])['team'].transform(lambda x: ', '.join(x.unique()))
+    except KeyError:
+        pass
+
+    try:
+        df_filtered['pos'] = df_filtered.groupby(['player', df_filtered.index])['pos'].transform(lambda x: ', '.join(set(', '.join(x).split(', '))))
+    except KeyError:
+        pass
+
+    # Handle non-sum columns by taking the first occurrence
+    group_non_sum = df_filtered[['player'] + res]
+
+    # Reset index for merging
+    group_sum = group_sum.reset_index().set_index('id')
+    group_combined = group_sum.reset_index().merge(group_non_sum, on=['player', 'id'])
+
+    # Drop duplicates
+    group_combined = group_combined.drop_duplicates(keep='first')
+
+    return group_combined
 
 def merge_dataframes(df_list):
     """Merge list of dataframes on the 'player' column."""
