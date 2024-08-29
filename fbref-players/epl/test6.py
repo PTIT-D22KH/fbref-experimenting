@@ -240,6 +240,8 @@ def create_radar_chart_match_compare(params, low, high, lower_is_better, player1
     title2_text = axs['title'].text(0.01, 0.25, team1_name, fontsize=20, fontproperties=robotto_thin.prop, ha='left', va='center', color='#01c49d')
     title3_text = axs['title'].text(0.99, 0.65, player2_name, fontsize=25, fontproperties=robotto_bold.prop, ha='right', va='center', color='#d80499')
     title4_text = axs['title'].text(0.99, 0.25, team2_name, fontsize=20, fontproperties=robotto_thin.prop, ha='right', va='center', color='#d80499')
+    title5_text = axs['title'].text(0.01, 0.05, match1_name, fontsize=20, fontproperties=robotto_thin.prop, ha='left', va='center', color='#01c49d')
+    title6_text = axs['title'].text(0.99, 0.05, match2_name, fontsize=20, fontproperties=robotto_thin.prop, ha='right', va='center', color='#d80499')
     
     fig.set_facecolor('#f2dad2')
     st.pyplot(fig)
