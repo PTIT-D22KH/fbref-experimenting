@@ -397,7 +397,7 @@ def main():
         }
     else:
         stats_list, _, _ = get_stats_lists_gk()
-        df_list = read_and_filter_stats_gk(fbref, stats_list)
+        df_list1, df_list2 = read_and_filter_stats_gk(fbref, stats_list)
         param_mapping = {
             "Goals Against": ['Performance', 'GA'],
             "Goals Against per 90": ['Performance', 'GA90'],
