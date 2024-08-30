@@ -686,7 +686,7 @@ def git_operations():
 def check_and_copy_folder():
     flag_file = 'folder_copied.flag'
     fbrefdata_dir = os.getenv('FBREFDATA_DIR', os.path.expanduser('~/fbrefdata/data'))
-    source_dir = os.path.join(os.getcwd(), 'fbrefdata')
+    source_dir = os.path.join(os.getcwd(), 'fbrefdata/data')
     
     if not os.path.exists(flag_file):
         copy_folder(source_dir, fbrefdata_dir)
