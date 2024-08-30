@@ -698,6 +698,7 @@ def check_and_copy_folder():
         copy_folder(fbrefdata_dir, source_dir)
         git_operations()
         delete_specific_files(source_dir, 'teams')
+        delete_specific_files(fbrefdata_dir, 'teams')
         os.remove(flag_file)
         st.session_state['folder_copied'] = False
 
